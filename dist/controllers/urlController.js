@@ -72,7 +72,12 @@ exports.getQRCode = getQRCode;
 const getLinkHistory = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const urls = yield urlModel_1.default.find();
-        res.status(200).json(urls);
+        // Generate QR code for each URL
+        const urlsWithQRCode = yield Promise.all(urls.map((url) => __awaiter(void 0, void 0, void 0, function* () {
+            const qrCodeData = yield (0, urlService_1.generateQRCode)(url.shortUrl);
+            return Object.assign(Object.assign({}, url.toObject()), { qrCode: qrCodeData });
+        })));
+        res.status(200).json(urlsWithQRCode);
     }
     catch (error) {
         console.error('Error fetching link history:', error);
