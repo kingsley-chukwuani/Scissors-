@@ -27,10 +27,14 @@ const mongoose_1 = __importStar(require("mongoose"));
 const urlSchema = new mongoose_1.Schema({
     originalUrl: { type: String, required: true },
     shortUrl: { type: String, required: true, unique: true },
-    customUrl: { type: String, unique: true },
+    customUrl: { type: String, unique: true, sparse: true }, // sparse index to allow multiple documents without this field
     clicks: { type: Number, default: 0 },
-    createdAt: { type: Date, default: Date.now },
+}, {
+    timestamps: true, // automatically manage createdAt and updatedAt fields
 });
+// Add indexes for better query performance
+urlSchema.index({ shortUrl: 1 });
+urlSchema.index({ customUrl: 1 });
 const UrlModel = mongoose_1.default.model('URL', urlSchema);
 exports.default = UrlModel;
 //# sourceMappingURL=urlModel.js.map

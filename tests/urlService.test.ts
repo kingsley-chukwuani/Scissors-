@@ -1,4 +1,3 @@
-
 import { isValidUrl } from '../src/utils/validateUrl';
 import UrlModel from '../src/models/urlModel';
 import { generateQRCode, shortenUrl } from '../src/services/urlService';
@@ -34,22 +33,22 @@ describe('URL Shortening Service', () => {
         expect(result).toHaveProperty('shortUrl', 'customAlias');
     });
 
-  it('should return the same shortened URL if the original URL was already shortened', async () => {
-    const mockUrl = { originalUrl: 'http://protech.com', shortUrl: 'protech' };
-    (isValidUrl as jest.Mock).mockReturnValue(true);
-    (NodeCache.prototype.get as jest.Mock).mockReturnValue(mockUrl);
-    const result = await shortenUrl('http://protech.com');
-    expect(result).toEqual(mockUrl);
-  });
+    it('should return the same shortened URL if the original URL was already shortened', async () => {
+        const mockUrl = { originalUrl: 'http://protech.com', shortUrl: 'protech' };
+        (isValidUrl as jest.Mock).mockReturnValue(true);
+        (NodeCache.prototype.get as jest.Mock).mockReturnValue(mockUrl);
+        const result = await shortenUrl('http://protech.com');
+        expect(result).toEqual(mockUrl);
+    });
 
-  it('should generate a QR code for a valid shortened URL', async () => {
-    const mockQRCode = 'data:image/png;base64,...';
-    (QRCode.toDataURL as jest.Mock).mockResolvedValue(mockQRCode);
-    const result = await generateQRCode('http://protech.url/protech');
-    expect(result).toBe(mockQRCode);
-  });
+    it('should generate a QR code for a valid shortened URL', async () => {
+        const mockQRCode = 'data:image/png;base64,...';
+        (QRCode.toDataURL as jest.Mock).mockResolvedValue(mockQRCode);
+        const result = await generateQRCode('http://protech.url/protech');
+        expect(result).toBe(mockQRCode);
+    });
 
-  it('should track the number of clicks on a shortened URL', async () => {
-    // Implement this test based on your click tracking logic
-  });
+    it('should track the number of clicks on a shortened URL', async () => {
+        // Implement this test based on your click tracking logic
+    });
 });

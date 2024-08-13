@@ -18,53 +18,44 @@ const validateUrl_1 = require("../utils/validateUrl");
 const shortid_1 = __importDefault(require("shortid"));
 const node_cache_1 = __importDefault(require("node-cache"));
 const qrcode_1 = __importDefault(require("qrcode"));
+// Initialize cache with a standard TTL of 100 seconds and a check period of 120 seconds
 const cache = new node_cache_1.default({ stdTTL: 100, checkperiod: 120 });
+// Function to shorten a URL
 const shortenUrl = (originalUrl, customUrl) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(`Received request to shorten URL: ${originalUrl} with custom URL: ${customUrl}`);
+    // Validate the URL
     if (!(0, validateUrl_1.isValidUrl)(originalUrl)) {
         console.error('Invalid URL');
         throw new Error('Invalid URL');
     }
+    // Check if the URL is cached
     let url = cache.get(originalUrl);
+    // If the URL is not cached, generate a new short URL
     if (!url) {
-        let shortUrl = customUrl;
-        if (customUrl) {
-            const existingCustomUrl = yield urlModel_1.default.findOne({ shortUrl: customUrl });
-            if (existingCustomUrl) {
-                console.error('Custom URL already in use');
-                throw new Error('Custom URL already in use');
-            }
-        }
-        else {
-            shortUrl = shortid_1.default.generate();
-        }
-        if (!shortUrl) {
-            console.error('Generated short URL is null');
-            throw new Error('Generated short URL is null');
-        }
+        const shortUrl = customUrl || shortid_1.default.generate();
         url = new urlModel_1.default({
             originalUrl,
             shortUrl,
+            customUrl,
         });
+        // Save the URL in the database
         try {
             yield url.save();
             cache.set(originalUrl, url);
             console.log(`URL saved to database: ${JSON.stringify(url)}`);
         }
         catch (error) {
-            console.error('Error saving URL to the database:', error);
+            console.error('Error saving URL to the database', error);
             throw new Error('Error saving URL to the database');
         }
     }
     else {
         console.log(`URL retrieved from cache: ${JSON.stringify(url)}`);
     }
-    return {
-        message: `Short URL created: ${JSON.stringify(url)}`,
-        url
-    };
+    return url;
 });
 exports.shortenUrl = shortenUrl;
+// Function to generate a QR code from a URL
 const generateQRCode = (url) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(`Received request to generate QR code for URL: ${url}`);
     try {
@@ -73,7 +64,7 @@ const generateQRCode = (url) => __awaiter(void 0, void 0, void 0, function* () {
         return qrCodeData;
     }
     catch (error) {
-        console.error('Error generating QR code:', error);
+        console.error('Error generating QR code', error);
         throw new Error('Error generating QR code');
     }
 });

@@ -4,18 +4,23 @@ import shortid from 'shortid';
 import NodeCache from 'node-cache';
 import QRCode from 'qrcode';
 
+// Initialize cache with a standard TTL of 100 seconds and a check period of 120 seconds
 const cache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
+// Function to shorten a URL
 export const shortenUrl = async (originalUrl: string, customUrl?: string): Promise<IURL> => {
   console.log(`Received request to shorten URL: ${originalUrl} with custom URL: ${customUrl}`);
 
+  // Validate the URL
   if (!isValidUrl(originalUrl)) {
     console.error('Invalid URL');
     throw new Error('Invalid URL');
   }
 
+  // Check if the URL is cached
   let url = cache.get<IURL>(originalUrl);
 
+  // If the URL is not cached, generate a new short URL
   if (!url) {
     const shortUrl = customUrl || shortid.generate();
 
@@ -25,6 +30,7 @@ export const shortenUrl = async (originalUrl: string, customUrl?: string): Promi
       customUrl,
     });
 
+    // Save the URL in the database
     try {
       await url.save();
       cache.set(originalUrl, url);
@@ -40,6 +46,7 @@ export const shortenUrl = async (originalUrl: string, customUrl?: string): Promi
   return url;
 };
 
+// Function to generate a QR code from a URL
 export const generateQRCode = async (url: string): Promise<string> => {
   console.log(`Received request to generate QR code for URL: ${url}`);
 

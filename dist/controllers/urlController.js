@@ -15,69 +15,67 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getLinkHistory = exports.getQRCode = exports.getShortUrl = exports.createShortUrl = void 0;
 const urlService_1 = require("../services/urlService");
 const urlModel_1 = __importDefault(require("../models/urlModel"));
+// Create Short URL
 const createShortUrl = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { originalUrl, customUrl } = req.body;
-        console.log(`Received request to create short URL: ${originalUrl} with custom URL: ${customUrl}`);
-        const result = yield (0, urlService_1.shortenUrl)(originalUrl, customUrl);
-        const url = result.url;
-        console.log(`Short URL created: ${JSON.stringify(url)}`);
-        res.json({ shortUrl: url.shortUrl, originalUrl: url.originalUrl, clicks: url.clicks, _id: url._id, createdAt: url.createdAt, __v: url.__v });
+        const url = yield (0, urlService_1.shortenUrl)(originalUrl, customUrl);
+        res.status(200).json(url); // Fixed typo in status method
     }
     catch (error) {
-        console.error('Error creating short URL', error);
+        console.error('Error creating short URL:', error);
         res.status(400).json({ error: error.message });
     }
 });
 exports.createShortUrl = createShortUrl;
+// Handle redirection from the short URL
 const getShortUrl = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { shortUrl } = req.params;
-        console.log(`Received request to get original URL for short URL: ${shortUrl}`);
         const url = yield urlModel_1.default.findOne({ shortUrl });
         if (!url) {
-            console.log('URL not found');
-            return res.status(404).json({ error: 'URL not found' });
+            res.status(404).json({ error: 'URL not found' });
+            return; // Ensure the function exits after sending the response
         }
+        // Increment the click count for analytics
         url.clicks += 1;
         yield url.save();
-        console.log(`URL found and click count updated: ${JSON.stringify(url)}`);
+        // Redirect to the original URL
         res.redirect(url.originalUrl);
     }
     catch (error) {
-        console.error('Server error', error);
+        console.error('Error redirecting to original URL:', error);
         res.status(500).json({ error: 'Server error' });
     }
 });
 exports.getShortUrl = getShortUrl;
+// Generate QR Code for a short URL
 const getQRCode = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { shortUrl } = req.params;
-        console.log(`Received request to generate QR code for short URL: ${shortUrl}`);
         const url = yield urlModel_1.default.findOne({ shortUrl });
         if (!url) {
-            console.log('URL not found');
-            return res.status(404).json({ error: 'URL not found' });
+            res.status(404).json({ error: 'URL not found' });
+            return; // Ensure the function exits after sending the response
         }
-        const qrCodeData = yield (0, urlService_1.generateQRCode)(url.shortUrl);
-        console.log('QR code generated successfully');
-        res.json({ qrCode: qrCodeData });
+        // Generate the QR code
+        const qrCodeData = yield (0, urlService_1.generateQRCode)(shortUrl);
+        res.status(200).json({ qrCode: qrCodeData });
     }
     catch (error) {
-        console.error('Server error', error);
+        console.error('Error generating QR code:', error);
         res.status(500).json({ error: 'Server error' });
     }
 });
 exports.getQRCode = getQRCode;
-const getLinkHistory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Fetch link history
+const getLinkHistory = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log('Received request to get link history');
         const urls = yield urlModel_1.default.find();
-        console.log(`Link history retrieved: ${JSON.stringify(urls)}`);
-        res.json(urls);
+        res.status(200).json(urls);
     }
     catch (error) {
-        console.error('Server error', error);
+        console.error('Error fetching link history:', error);
         res.status(500).json({ error: 'Server error' });
     }
 });
