@@ -73,7 +73,7 @@ To run the tests, use the following command:
 npm test
 ```
 
-### API Endpoints
+### API Endpoints: `Base Url: https://scissors-mw4g.onrender.com`
 
 Here are the primary API endpoints:
 
