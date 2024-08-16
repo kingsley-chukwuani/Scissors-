@@ -42,7 +42,7 @@ Ensure you have the following installed on your system:
 
    ```env
    MONGO_URI=mongodb://localhost:27017/scissor
-   PORT=5000
+   PORT=8000
    ```
 
    Replace the `MONGO_URI` with your actual MongoDB connection string.
