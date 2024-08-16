@@ -3,7 +3,6 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import urlRoutes from './routes/urlRoutes';
 import { connectDB } from './config/db';
-const path = require('path');
 
 const app = express();
 
@@ -22,6 +21,11 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
   console.log(`Incoming request: ${req.method} ${req.url}`);
   console.log('Request body:', req.body);
   next();
+});
+
+// Root route
+app.get('/', (req: Request, res: Response) => {
+  res.status(200).json({ message: 'welcome' });
 });
 
 // API routes

@@ -8,7 +8,6 @@ const cors_1 = __importDefault(require("cors"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const urlRoutes_1 = __importDefault(require("./routes/urlRoutes"));
 const db_1 = require("./config/db");
-const path = require('path');
 const app = (0, express_1.default)();
 // Connect to the database
 (0, db_1.connectDB)();
@@ -22,6 +21,10 @@ app.use((req, _res, next) => {
     console.log(`Incoming request: ${req.method} ${req.url}`);
     console.log('Request body:', req.body);
     next();
+});
+// Root route
+app.get('/', (req, res) => {
+    res.status(200).json({ message: 'welcome' });
 });
 // API routes
 app.use('/api', urlRoutes_1.default);
